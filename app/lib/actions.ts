@@ -4,8 +4,11 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import postgres from 'postgres'
+import { extractFormData } from './utils'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+
+const invoicesURL = '/dashboard/invoices'
 
 const FormSchema = z.object({
   id: z.string(),
@@ -15,16 +18,17 @@ const FormSchema = z.object({
   date: z.string()
 })
 
-const CreateInvoiceValidation = FormSchema.omit({ id: true, date: true })
+const InvoiceValidation = FormSchema.omit({ id: true, date: true })
+
+const redirectAndRevalidateInvoices = () => {
+  revalidatePath(invoicesURL)
+  redirect(invoicesURL)
+}
 
 export const createInvoice = async (formData: FormData) => {
-  const rawData: { [key: string]: unknown } = {}
-  
-  for (const [key, value] of formData) {
-    rawData[key] = value
-  }
-  
-  const { customerId, amount, status } = CreateInvoiceValidation.parse(rawData)
+  const rawData = extractFormData(formData)
+
+  const { customerId, amount, status } = InvoiceValidation.parse(rawData)
 
   const amountInCents = amount * 100
   const date = new Date().toISOString().split('T')[0]
@@ -34,6 +38,21 @@ export const createInvoice = async (formData: FormData) => {
     VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
   `
 
-  revalidatePath('/dashboard/invoices')
-  redirect('/dashboard/invoices')
+  redirectAndRevalidateInvoices()
+}
+
+export const updateInvoice = async (id: string, formData: FormData) => {
+  const rawData = extractFormData(formData)
+
+  const { customerId, amount, status } = InvoiceValidation.parse(rawData)
+
+  const amountInCents = amount * 100
+
+  await sql`
+    UPDATE invoices
+    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+    WHERE id = ${id}
+  `
+
+  redirectAndRevalidateInvoices()
 }
