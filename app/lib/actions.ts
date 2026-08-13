@@ -28,36 +28,49 @@ const redirectAndRevalidateInvoices = () => {
 export const createInvoice = async (formData: FormData) => {
   const rawData = extractFormData(formData)
 
-  const { customerId, amount, status } = InvoiceValidation.parse(rawData)
+  try {
+    const { customerId, amount, status } = InvoiceValidation.parse(rawData)
 
-  const amountInCents = amount * 100
-  const date = new Date().toISOString().split('T')[0]
+    const amountInCents = amount * 100
+    const date = new Date().toISOString().split('T')[0]
 
-  await sql`
-    INSERT INTO invoices (customer_id, amount, status, date)
-    VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-  `
-
-  redirectAndRevalidateInvoices()
+    await sql`
+      INSERT INTO invoices (customer_id, amount, status, date)
+      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+    `
+  } catch (err) {
+    console.error(err)
+  } finally {
+    redirectAndRevalidateInvoices()
+  }
 }
 
 export const updateInvoice = async (id: string, formData: FormData) => {
   const rawData = extractFormData(formData)
 
-  const { customerId, amount, status } = InvoiceValidation.parse(rawData)
+  try {
+    const { customerId, amount, status } = InvoiceValidation.parse(rawData)
 
-  const amountInCents = amount * 100
+    const amountInCents = amount * 100
 
-  await sql`
-    UPDATE invoices
-    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-    WHERE id = ${id}
-  `
-
-  redirectAndRevalidateInvoices()
+    await sql`
+      UPDATE invoices
+      SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+      WHERE id = ${id}
+    `
+  } catch (err) {
+    console.error(err)
+  } finally {
+    redirectAndRevalidateInvoices()
+  }
 }
 
 export const deleteInvoice = async (id: string) => {
-  await sql`DELETE FROM invoices WHERE id = ${id}`
-  revalidatePath(invoicesURL)
+  try {
+    await sql`DELETE FROM invoices WHERE id = ${id}`
+  } catch (err) {
+    console.error(err)
+  } finally {
+    revalidatePath(invoicesURL)
+  }
 }
