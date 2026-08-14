@@ -72,11 +72,19 @@ export const createInvoice = async (_: State, formData: FormData): Promise<State
   return {}
 }
 
-export const updateInvoice = async (id: string, formData: FormData) => {
+export const updateInvoice = async (id: string, _: State, formData: FormData): Promise<State> => {
   const rawData = extractFormData(formData)
 
   try {
-    const { customerId, amount, status } = InvoiceValidation.parse(rawData)
+    const validatedFields = InvoiceValidation.safeParse(rawData)
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Field errors. Failed to update invoice.'
+      }
+    }
+    const { customerId, amount, status } = validatedFields.data
 
     const amountInCents = amount * 100
 
@@ -87,9 +95,14 @@ export const updateInvoice = async (id: string, formData: FormData) => {
     `
   } catch (err) {
     console.error(err)
+    return {
+      message: 'Database error: Failed to update invoice.'
+    }
   }
 
   redirectAndRevalidateInvoices()
+
+  return {}
 }
 
 export const deleteInvoice = async (id: string) => {
