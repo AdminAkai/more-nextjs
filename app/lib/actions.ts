@@ -40,9 +40,9 @@ export const createInvoice = async (formData: FormData) => {
     `
   } catch (err) {
     console.error(err)
-  } finally {
-    redirectAndRevalidateInvoices()
   }
+
+  redirectAndRevalidateInvoices()
 }
 
 export const updateInvoice = async (id: string, formData: FormData) => {
@@ -60,9 +60,9 @@ export const updateInvoice = async (id: string, formData: FormData) => {
     `
   } catch (err) {
     console.error(err)
-  } finally {
-    redirectAndRevalidateInvoices()
   }
+
+  redirectAndRevalidateInvoices()
 }
 
 export const deleteInvoice = async (id: string) => {
@@ -70,7 +70,7 @@ export const deleteInvoice = async (id: string) => {
     await sql`DELETE FROM invoices WHERE id = ${id}`
   } catch (err) {
     console.error(err)
-  } finally {
-    revalidatePath(invoicesURL)
   }
+
+  revalidatePath(invoicesURL)
 }

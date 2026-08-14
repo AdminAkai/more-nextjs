@@ -3,6 +3,7 @@ import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 import { fetchCustomers, fetchInvoiceById } from '@/app/lib/data';
 import { use } from 'react';
 import { NextPage } from 'next';
+import { notFound } from 'next/navigation';
  
 interface PageProps { 
   params: Promise<{ id: string }>
@@ -15,6 +16,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
     fetchCustomers()
   ]))
 
+  if (!invoice) notFound()
 
   return (
     <main>
