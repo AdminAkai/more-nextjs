@@ -1,10 +1,15 @@
+import { use } from 'react';
+import { Metadata, NextPage } from 'next';
+import { notFound } from 'next/navigation';
+
 import EditForm from '@/app/ui/invoices/edit-form';
 import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 import { fetchCustomers, fetchInvoiceById } from '@/app/lib/data';
-import { use } from 'react';
-import { NextPage } from 'next';
-import { notFound } from 'next/navigation';
  
+export const metadata: Metadata = {
+  title: 'Edit Invoice',
+}
+
 interface PageProps { 
   params: Promise<{ id: string }>
 }
