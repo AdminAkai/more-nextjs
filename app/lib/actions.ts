@@ -5,8 +5,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import postgres from 'postgres'
 import { extractFormData } from './utils'
-import { signIn } from 'next-auth/react'
 import { AuthError } from 'next-auth'
+import { signIn } from '@/auth'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
